@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: trazabilidad-actas-ambiental
+  profiles:
+    active: postgres
+  thymeleaf:
+    cache: false
+  servlet:
+    multipart:
+      max-file-size: 15MB
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+server:
+  port: 8080
+
+app:
+  upload-dir: ./uploads
+  public-base-url: http://localhost:8080
+  api:
+    key: demo-api-key-heredia
+  alertas:
+    dias-pendiente-firma: 3
+    dias-pendiente-nube: 5
+
+---
+spring:
+  config:
+    activate:
+      on-profile: demo
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+---
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    url: jdbc:postgresql://localhost:5432/actas_ambiental
+    username: postgres
+    password: ${POSTGRES_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+---
+# Perfil para despliegue en EC2 con Docker Compose (ver docs/DESPLIEGUE-AWS.md)
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/actas_ambiental
+    username: actas_user
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  forward-headers-strategy: framework
+
+app:
+  public-base-url: ${APP_PUBLIC_BASE_URL:https://actas.example.com}
+  api:
+    key: ${APP_API_KEY:demo-api-key-heredia}

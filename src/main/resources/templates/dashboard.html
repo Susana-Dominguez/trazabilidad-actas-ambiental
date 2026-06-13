@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Dashboard - Gestión Ambiental</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <style>
+        body { background: #f4f6f9; }
+        .navbar-custom { background: #19692c; }
+        .card-kpi {
+            border: none;
+            border-radius: 15px;
+            color: white;
+            transition: 0.3s;
+        }
+        .card-kpi:hover { transform: translateY(-3px); }
+        .kpi-number { font-size: 2rem; font-weight: bold; }
+        .kpi-title { font-size: 0.95rem; }
+        .green { background: #2e7d32; }
+        .blue { background: #1565c0; }
+        .yellow { background: #f9a825; }
+        .red { background: #d32f2f; }
+        .white-card {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.85rem;
+        }
+        .footer-box {
+            background: white;
+            border-left: 5px solid #2e7d32;
+            border-radius: 10px;
+        }
+        .nav-action {
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            padding: 0.35rem 0.85rem !important;
+            margin-left: 0.5rem;
+        }
+        .nav-action:hover { background: rgba(255, 255, 255, 0.12); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand text-white text-decoration-none" href="/dashboard">
+            🌿 Gestión Ambiental — Sistema de Trazabilidad
+        </a>
+        <div class="navbar-nav ms-auto flex-row align-items-center">
+            <a class="nav-link text-white active" href="/dashboard">Dashboard</a>
+            <a class="nav-link text-white nav-action" href="/actas/nueva">+ Registrar acta</a>
+            <a class="nav-link text-white nav-action" href="/actas/consulta">Consultar actas</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Dashboard de seguimiento</h1>
+            <p class="text-muted mb-0">Trazabilidad y control documental de actas ambientales</p>
+        </div>
+        <a class="btn btn-success" href="/actas/nueva">+ Registrar acta</a>
+    </div>
+
+    <div class="row mb-4 g-3">
+        <div class="col-md-3">
+            <div class="card card-kpi green p-3">
+                <div class="kpi-title">Actas registradas</div>
+                <div class="kpi-number" th:text="${totalActas}">0</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-kpi yellow p-3">
+                <div class="kpi-title">Recibidas / en bandeja</div>
+                <div class="kpi-number" th:text="${enRevision}">0</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-kpi blue p-3">
+                <div class="kpi-title">Por firmar</div>
+                <div class="kpi-number" th:text="${porFirmar}">0</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-kpi red p-3">
+                <div class="kpi-title">Atrasadas</div>
+                <div class="kpi-number" th:text="${atrasadas}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+
+            <div class="card white-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">📋 Actas recientes</h4>
+                    <a class="btn btn-sm btn-outline-primary" href="/actas/consulta">Ver todas</a>
+                </div>
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>Consecutivo</th>
+                            <th>Empresa</th>
+                            <th>Contrato</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="a : ${actasRecientes}">
+                            <td th:text="${a.consecutivo}">2026-015</td>
+                            <td th:text="${a.empresa}">Empresa</td>
+                            <td th:text="${a.numeroContrato}">CT-2026-018</td>
+                            <td>
+                                <span class="status-badge text-bg-secondary" th:text="${a.estado.etiqueta}">Estado</span>
+                            </td>
+                            <td th:text="${#temporals.format(a.fechaActa, 'dd/MM/yyyy')}">09/06/2026</td>
+                            <td><a th:href="@{/actas/{id}(id=${a.id})}">Ver</a></td>
+                        </tr>
+                        <tr th:if="${actasRecientes.isEmpty()}">
+                            <td colspan="6" class="text-center text-muted py-4">
+                                No hay actas registradas.
+                                <a href="/actas/nueva">Registrar la primera acta</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card white-card p-4">
+                <h4>🏢 Empresas con mayor cantidad de actas</h4>
+                <table class="table mt-3 mb-0">
+                    <tbody>
+                    <tr th:each="e : ${topEmpresas}">
+                        <td>
+                            <a th:href="@{/actas/consulta(empresa=${e.key})}" th:text="${e.key}">Empresa</a>
+                        </td>
+                        <td class="text-end fw-semibold" th:text="${e.value}">0</td>
+                    </tr>
+                    <tr th:if="${topEmpresas.isEmpty()}">
+                        <td colspan="2" class="text-muted">Sin datos aún.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="card white-card p-4 mb-4">
+                <h4>📊 Estado de las actas</h4>
+                <ul class="list-group list-group-flush mt-3">
+                    <li class="list-group-item d-flex justify-content-between px-0"
+                        th:each="item : ${resumenEstados}">
+                        <span th:text="${item.etiqueta}">Estado</span>
+                        <span class="fw-semibold" th:text="${item.cantidad}">0</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card white-card p-4 mb-4">
+                <h4>⏰ Seguimiento operativo</h4>
+                <div class="mt-3">
+                    <p>🟡 <span th:text="${pendientesFirma}">0</span> actas pendientes de firma</p>
+                    <p>🔵 <span th:text="${enBandeja}">0</span> actas recibidas por correo</p>
+                    <p>🔴 <span th:text="${sinActualizar7d}">0</span> actas con más de 7 días sin actualizar</p>
+                    <p>🟢 <span th:text="${cerradasSemana}">0</span> actas cerradas en los últimos 7 días</p>
+                </div>
+            </div>
+
+            <div class="card white-card p-4 mb-4" th:if="${!alertas.isEmpty()}">
+                <h4>⚠️ Alertas</h4>
+                <ul class="list-group list-group-flush mt-3">
+                    <li class="list-group-item px-0" th:each="a : ${alertas}">
+                        <a th:href="@{/actas/{id}(id=${a.id})}" th:text="${a.consecutivo}">2026-003</a>
+                        <span class="text-muted small" th:text="' — ' + ${a.estado.etiqueta}"></span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card footer-box p-3">
+                <h6>🚀 Evolución futura</h6>
+                <small>
+                    Integración con ArcGIS para visualizar:
+                    <ul class="mt-2 mb-0">
+                        <li>Inspecciones</li>
+                        <li>Contratos</li>
+                        <li>Empresas</li>
+                        <li>Rutas de recolección</li>
+                        <li>Indicadores geográficos</li>
+                    </ul>
+                </small>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

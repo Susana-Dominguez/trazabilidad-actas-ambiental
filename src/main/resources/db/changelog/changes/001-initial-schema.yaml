@@ -1,0 +1,112 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-actas
+      author: sistema
+      changes:
+        - createTable:
+            tableName: actas
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: consecutivo
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: empresa
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: numero_contrato
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: inspector
+                  type: VARCHAR(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fecha_acta
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: estado
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: origen
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tipo_acta
+                  type: VARCHAR(80)
+              - column:
+                  name: referencia_caso
+                  type: VARCHAR(255)
+              - column:
+                  name: ruta_documento
+                  type: VARCHAR(255)
+              - column:
+                  name: correo_origen
+                  type: VARCHAR(120)
+              - column:
+                  name: fecha_registro_sistema
+                  type: TIMESTAMP
+              - column:
+                  name: ultima_actualizacion
+                  type: TIMESTAMP
+
+  - changeSet:
+      id: 002-create-historial-estados
+      author: sistema
+      changes:
+        - createTable:
+            tableName: historial_estados
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: acta_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: estado
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fecha_cambio
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: observacion
+                  type: VARCHAR(255)
+              - column:
+                  name: usuario
+                  type: VARCHAR(80)
+        - addForeignKeyConstraint:
+            baseTableName: historial_estados
+            baseColumnNames: acta_id
+            referencedTableName: actas
+            referencedColumnNames: id
+            constraintName: fk_historial_acta
+            onDelete: CASCADE

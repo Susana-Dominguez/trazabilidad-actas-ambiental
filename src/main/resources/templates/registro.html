@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Registrar acta | Trazabilidad Actas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark" style="background:#1b5e20">
+    <div class="container">
+        <a class="navbar-brand" href="/dashboard">Gestión Ambiental — Actas</a>
+        <div class="navbar-nav ms-auto flex-row gap-3">
+            <a class="nav-link text-white" href="/dashboard">Dashboard</a>
+            <a class="nav-link text-white" href="/actas/consulta">Consulta</a>
+        </div>
+    </div>
+</nav>
+<main class="container py-4">
+    <h1 class="h3 mb-3">Registro de acta</h1>
+    <p class="text-muted">Use cuando el acta llegue por <strong>Outlook</strong> (Survey123 o portal municipal).</p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form th:action="@{/actas}" th:object="${acta}" method="post" enctype="multipart/form-data">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Consecutivo *</label>
+                        <input class="form-control" th:field="*{consecutivo}" placeholder="2026-005"/>
+                        <div class="text-danger small" th:errors="*{consecutivo}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Empresa *</label>
+                        <input class="form-control" th:field="*{empresa}" placeholder="Nombre contratista"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">N.º contrato *</label>
+                        <input class="form-control" th:field="*{numeroContrato}" placeholder="CT-2024-018"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Inspector / gestor *</label>
+                        <input class="form-control" th:field="*{inspector}"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha acta *</label>
+                        <input type="date" class="form-control" th:field="*{fechaActa}"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Estado *</label>
+                        <select class="form-select" th:field="*{estado}">
+                            <option th:each="e : ${estados}" th:value="${e}" th:text="${e.etiqueta}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Origen *</label>
+                        <select class="form-select" th:field="*{origen}">
+                            <option th:each="o : ${origenes}" th:value="${o}" th:text="${o}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo de acta</label>
+                        <input class="form-control" th:field="*{tipoActa}" placeholder="Notificación, Minuta..."/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Correo origen (Outlook)</label>
+                        <input class="form-control" th:field="*{correoOrigen}" placeholder="sostenible@..."/>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Referencia / caso</label>
+                        <input class="form-control" th:field="*{referenciaCaso}"/>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Adjuntar PDF/Word (opcional)</label>
+                        <input type="file" class="form-control" name="archivo" accept=".pdf,.doc,.docx"/>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observación inicial</label>
+                        <textarea class="form-control" rows="2" th:field="*{observacionHistorial}" placeholder="Ej. Recibida en bandeja Outlook 09:15"></textarea>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success">Guardar acta</button>
+                    <a class="btn btn-outline-secondary" href="/dashboard">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

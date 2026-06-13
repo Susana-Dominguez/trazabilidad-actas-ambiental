@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: actas-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: actas_ambiental
+      POSTGRES_USER: actas_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U actas_user -d actas_ambiental"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: actas-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_PUBLIC_BASE_URL: ${APP_PUBLIC_BASE_URL}
+      APP_API_KEY: ${APP_API_KEY}
+    volumes:
+      - uploads:/app/uploads
+    ports:
+      # Solo localhost: Nginx en el host hace proxy y HTTPS
+      - "127.0.0.1:8080:8080"
+
+volumes:
+  pgdata:
+  uploads:
