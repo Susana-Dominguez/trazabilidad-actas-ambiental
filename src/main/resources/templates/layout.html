@@ -3,30 +3,27 @@
 <head th:fragment="head(titulo)">
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title th:text="${titulo} + ' | Trazabilidad Actas'">Trazabilidad Actas</title>
+    <title th:text="${titulo} + ' | Gestión Ambiental'">Gestión Ambiental</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <style>
-        :root { --verde-muni: #1b5e20; }
-        .navbar-brand { font-weight: 600; }
-        .badge-estado { font-size: 0.85rem; }
-        .card-kpi { border-left: 4px solid var(--verde-muni); }
-        footer { font-size: 0.85rem; color: #666; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/ambiental-theme.css}"/>
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark" style="background:#1b5e20">
+
+<nav th:fragment="navbar(active)" class="navbar navbar-expand-lg navbar-dark navbar-ambiental">
     <div class="container">
-        <a class="navbar-brand" href="/dashboard">Gestión Ambiental — Actas</a>
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link text-white" href="/dashboard">Dashboard</a>
-            <a class="nav-link text-white" href="/actas/nueva">Registrar acta</a>
-            <a class="nav-link text-white" href="/actas/consulta">Consulta</a>
+        <a class="navbar-brand text-white text-decoration-none" href="/dashboard">
+            🌿 Gestión Ambiental — Sistema de Trazabilidad
+        </a>
+        <div class="navbar-nav ms-auto flex-row align-items-center">
+            <a class="nav-link" href="/dashboard"
+               th:classappend="${active == 'dashboard'} ? ' active' : ''">Dashboard</a>
+            <a class="nav-link nav-cta" href="/actas/nueva"
+               th:classappend="${active == 'registro'} ? ' active' : ''">+ Registrar acta</a>
+            <a class="nav-link nav-cta" href="/actas/consulta"
+               th:classappend="${active == 'consulta'} ? ' active' : ''">Consultar actas</a>
         </div>
     </div>
 </nav>
-<main class="container py-4" th:fragment="content">
-    <!-- contenido -->
-</main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+
+<script th:fragment="scripts" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </html>

@@ -1,27 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Registrar acta | Trazabilidad Actas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-</head>
-<body class="bg-light">
-<nav class="navbar navbar-dark" style="background:#1b5e20">
-    <div class="container">
-        <a class="navbar-brand" href="/dashboard">Gestión Ambiental — Actas</a>
-        <div class="navbar-nav ms-auto flex-row gap-3">
-            <a class="nav-link text-white" href="/dashboard">Dashboard</a>
-            <a class="nav-link text-white" href="/actas/consulta">Consulta</a>
-        </div>
-    </div>
-</nav>
-<main class="container py-4">
-    <h1 class="h3 mb-3">Registro de acta</h1>
-    <p class="text-muted">Use cuando el acta llegue por <strong>Outlook</strong> (Survey123 o portal municipal).</p>
+<head th:replace="~{layout :: head('Registrar acta')}"></head>
+<body class="ambiental-page page-registro">
 
-    <div class="card shadow-sm">
-        <div class="card-body">
+<nav th:replace="~{layout :: navbar('registro')}"></nav>
+
+<main class="container ambiental-main">
+    <div class="page-header mb-4">
+        <h1 class="h3 mb-1">Registro de acta</h1>
+        <p class="subtitle">Use cuando el acta llegue por <strong>Outlook</strong> (Survey123 o portal municipal).</p>
+    </div>
+
+    <div class="glass-card">
+        <div class="card-body p-4">
             <form th:action="@{/actas}" th:object="${acta}" method="post" enctype="multipart/form-data">
                 <div class="row g-3">
                     <div class="col-md-4">
@@ -79,12 +70,14 @@
                     </div>
                 </div>
                 <div class="mt-4">
-                    <button type="submit" class="btn btn-success">Guardar acta</button>
-                    <a class="btn btn-outline-secondary" href="/dashboard">Cancelar</a>
+                    <button type="submit" class="btn btn-ambiental">Guardar acta</button>
+                    <a class="btn btn-outline-ambiental" href="/dashboard">Cancelar</a>
                 </div>
             </form>
         </div>
     </div>
 </main>
+
+<script th:replace="~{layout :: scripts}"></script>
 </body>
 </html>

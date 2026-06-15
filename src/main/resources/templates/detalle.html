@@ -1,38 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
-<head>
-    <meta charset="UTF-8"/>
-    <title th:text="${acta.consecutivo} + ' | Detalle'">Detalle</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-</head>
-<body class="bg-light">
-<nav class="navbar navbar-dark" style="background:#1b5e20">
-    <div class="container">
-        <a class="navbar-brand" href="/dashboard">Gestión Ambiental — Actas</a>
-    </div>
-</nav>
-<main class="container py-4">
+<head th:replace="~{layout :: head('Detalle acta')}"></head>
+<body class="ambiental-page page-detalle">
+
+<nav th:replace="~{layout :: navbar('consulta')}"></nav>
+
+<main class="container ambiental-main">
     <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
 
-    <div class="d-flex justify-content-between mb-3">
-        <h1 class="h3" th:text="'Acta ' + ${acta.consecutivo}">Acta</h1>
-        <a class="btn btn-outline-secondary" href="/actas/consulta">Volver</a>
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0" th:text="'Acta ' + ${acta.consecutivo}">Acta</h1>
+        <a class="btn btn-outline-ambiental" href="/actas/consulta">Volver</a>
     </div>
 
     <div class="row g-3">
         <div class="col-lg-7">
-            <div class="card shadow-sm mb-3">
+            <div class="glass-card mb-3">
                 <div class="card-header"><strong>Datos del acta</strong></div>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between"><span>Empresa</span><strong th:text="${acta.empresa}"></strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span>N.º contrato</span><strong th:text="${acta.numeroContrato}"></strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span>Inspector</span><strong th:text="${acta.inspector}"></strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span>Fecha</span><strong th:text="${acta.fechaActa}"></strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span>Estado</span><span class="badge text-bg-primary" th:text="${acta.estado.etiqueta}"></span></li>
-                    <li class="list-group-item d-flex justify-content-between"><span>Origen</span><strong th:text="${acta.origen}"></strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span>Tipo</span><strong th:text="${acta.tipoActa} ?: '-'"></strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span>Correo origen</span><strong th:text="${acta.correoOrigen} ?: '-'"></strong></li>
-                    <li class="list-group-item" th:if="${acta.rutaDocumento}">
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Empresa</span><strong th:text="${acta.empresa}"></strong></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>N.º contrato</span><strong th:text="${acta.numeroContrato}"></strong></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Inspector</span><strong th:text="${acta.inspector}"></strong></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Fecha</span><strong th:text="${acta.fechaActa}"></strong></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Estado</span><span class="badge text-bg-primary" th:text="${acta.estado.etiqueta}"></span></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Origen</span><strong th:text="${acta.origen}"></strong></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Tipo</span><strong th:text="${acta.tipoActa} ?: '-'"></strong></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Correo origen</span><strong th:text="${acta.correoOrigen} ?: '-'"></strong></li>
+                    <li class="list-group-item bg-transparent" th:if="${acta.rutaDocumento}">
                         <span class="text-muted small">Documento:</span>
                         <div th:text="${acta.rutaDocumento}"></div>
                     </li>
@@ -40,7 +34,7 @@
             </div>
         </div>
         <div class="col-lg-5">
-            <div class="card shadow-sm mb-3">
+            <div class="glass-card mb-3">
                 <div class="card-header"><strong>Cambiar estado (trazabilidad)</strong></div>
                 <div class="card-body">
                     <form th:action="@{/actas/{id}/estado(id=${acta.id})}" method="post">
@@ -52,24 +46,26 @@
                         <div class="mb-2">
                             <input class="form-control" name="observacion" placeholder="Observación del cambio"/>
                         </div>
-                        <button class="btn btn-success w-100" type="submit">Actualizar estado</button>
+                        <button class="btn btn-ambiental w-100" type="submit">Actualizar estado</button>
                     </form>
                 </div>
             </div>
-            <div class="card shadow-sm">
+            <div class="glass-card">
                 <div class="card-header"><strong>Historial</strong></div>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item" th:each="h : ${historial}">
+                    <li class="list-group-item bg-transparent" th:each="h : ${historial}">
                         <div class="small text-muted" th:text="${#temporals.format(h.fechaCambio, 'dd/MM/yyyy HH:mm')}"></div>
                         <div><span class="badge text-bg-light border" th:text="${h.estado.etiqueta}"></span></div>
                         <div class="small" th:text="${h.observacion}"></div>
                         <div class="small text-muted" th:text="'Por: ' + ${h.usuario}"></div>
                     </li>
-                    <li class="list-group-item text-muted" th:if="${historial.isEmpty()}">Sin historial aún.</li>
+                    <li class="list-group-item text-muted bg-transparent" th:if="${historial.isEmpty()}">Sin historial aún.</li>
                 </ul>
             </div>
         </div>
     </div>
 </main>
+
+<script th:replace="~{layout :: scripts}"></script>
 </body>
 </html>

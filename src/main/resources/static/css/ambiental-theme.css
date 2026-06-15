@@ -1,0 +1,197 @@
+/* Paleta Gestión Ambiental — verde, azul y gris (tonos claros) */
+:root {
+    --verde-primario: #2e7d32;
+    --verde-oscuro: #1b5e36;
+    --verde-claro: #66bb6a;
+    --verde-fondo: #e8f5e9;
+    --azul-primario: #1976d2;
+    --azul-claro: #42a5f5;
+    --azul-fondo: #e3f2fd;
+    --gris-texto: #546e7a;
+    --gris-claro: #eceff1;
+    --gris-medio: #90a4ae;
+    --blanco-card: rgba(255, 255, 255, 0.94);
+    --sombra-card: 0 4px 20px rgba(27, 94, 54, 0.1);
+}
+
+/* Fondo ambiental por pantalla */
+.ambiental-page {
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+.page-dashboard {
+    background-image:
+        linear-gradient(135deg, rgba(232, 245, 233, 0.92) 0%, rgba(227, 242, 253, 0.88) 50%, rgba(236, 239, 241, 0.90) 100%),
+        url('/img/backgrounds/bg-dashboard.png');
+}
+
+.page-registro {
+    background-image:
+        linear-gradient(135deg, rgba(227, 242, 253, 0.90) 0%, rgba(232, 245, 233, 0.92) 100%),
+        url('/img/backgrounds/bg-registro.png');
+}
+
+.page-consulta,
+.page-detalle {
+    background-image:
+        linear-gradient(135deg, rgba(236, 239, 241, 0.90) 0%, rgba(227, 242, 253, 0.88) 100%),
+        url('/img/backgrounds/bg-consulta.png');
+}
+
+/* Navbar institucional */
+.navbar-ambiental {
+    background: linear-gradient(90deg, var(--verde-oscuro) 0%, var(--verde-primario) 55%, #1565c0 100%);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-ambiental .navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.navbar-ambiental .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 8px;
+    padding: 0.4rem 0.85rem !important;
+    margin-left: 0.25rem;
+    transition: background 0.2s;
+}
+
+.navbar-ambiental .nav-link:hover,
+.navbar-ambiental .nav-link.active {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff !important;
+}
+
+.navbar-ambiental .nav-link.nav-cta {
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    margin-left: 0.5rem;
+}
+
+/* Contenedor principal */
+.ambiental-main {
+    padding-top: 1.5rem;
+    padding-bottom: 3rem;
+}
+
+.page-header h1 {
+    color: var(--verde-oscuro);
+    font-weight: 700;
+}
+
+.page-header .subtitle {
+    color: var(--gris-texto);
+}
+
+/* Tarjetas */
+.glass-card {
+    background: var(--blanco-card);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    box-shadow: var(--sombra-card);
+    backdrop-filter: blur(6px);
+}
+
+.glass-card .card-header {
+    background: linear-gradient(90deg, var(--verde-fondo), var(--azul-fondo));
+    border-bottom: 1px solid rgba(46, 125, 50, 0.12);
+    font-weight: 600;
+    color: var(--verde-oscuro);
+    border-radius: 16px 16px 0 0 !important;
+}
+
+/* KPIs dashboard */
+.card-kpi {
+    border: none;
+    border-radius: 16px;
+    color: white;
+    transition: transform 0.25s, box-shadow 0.25s;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.card-kpi:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+.kpi-number { font-size: 2rem; font-weight: 700; }
+.kpi-title { font-size: 0.9rem; opacity: 0.95; }
+
+.kpi-verde  { background: linear-gradient(135deg, #43a047, #2e7d32); }
+.kpi-azul   { background: linear-gradient(135deg, #42a5f5, #1976d2); }
+.kpi-gris   { background: linear-gradient(135deg, #90a4ae, #607d8b); }
+.kpi-alerta { background: linear-gradient(135deg, #ef5350, #c62828); }
+
+/* Botones acorde a paleta */
+.btn-ambiental {
+    background: linear-gradient(135deg, var(--verde-claro), var(--verde-primario));
+    border: none;
+    color: white;
+    font-weight: 500;
+}
+
+.btn-ambiental:hover {
+    background: linear-gradient(135deg, var(--verde-primario), var(--verde-oscuro));
+    color: white;
+}
+
+.btn-outline-ambiental {
+    border-color: var(--verde-primario);
+    color: var(--verde-primario);
+}
+
+.btn-outline-ambiental:hover {
+    background: var(--verde-fondo);
+    border-color: var(--verde-oscuro);
+    color: var(--verde-oscuro);
+}
+
+.btn-buscar {
+    background: linear-gradient(135deg, var(--azul-claro), var(--azul-primario));
+    border: none;
+    color: white;
+}
+
+.btn-buscar:hover {
+    background: linear-gradient(135deg, var(--azul-primario), #1565c0);
+    color: white;
+}
+
+/* Tablas */
+.table thead {
+    background: linear-gradient(90deg, var(--verde-fondo), var(--azul-fondo));
+    color: var(--verde-oscuro);
+}
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.footer-box {
+    background: var(--blanco-card);
+    border-left: 5px solid var(--verde-primario);
+    border-radius: 12px;
+    box-shadow: var(--sombra-card);
+}
+
+.list-group-item {
+    background: transparent;
+}
+
+/* Formularios */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--verde-claro);
+    box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.2);
+}
+
+.form-label {
+    color: var(--gris-texto);
+    font-weight: 500;
+}
