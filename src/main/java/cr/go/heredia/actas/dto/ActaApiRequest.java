@@ -16,10 +16,8 @@ public class ActaApiRequest {
     @NotBlank
     private String consecutivo;
 
-    @NotBlank
     private String empresa;
 
-    @NotBlank
     private String numeroContrato;
 
     @NotBlank

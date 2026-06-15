@@ -22,7 +22,7 @@ public interface ActaRepository extends JpaRepository<Acta, Long>, JpaSpecificat
 
     List<Acta> findTop10ByOrderByFechaRegistroSistemaDesc();
 
-    @Query("SELECT a.empresa, COUNT(a) FROM Acta a GROUP BY a.empresa ORDER BY COUNT(a) DESC")
+    @Query("SELECT a.empresa, COUNT(a) FROM Acta a WHERE a.empresa IS NOT NULL AND a.empresa <> '' GROUP BY a.empresa ORDER BY COUNT(a) DESC")
     List<Object[]> contarPorEmpresa();
 
     @Query("SELECT COUNT(a) FROM Acta a WHERE a.fechaRegistroSistema >= :inicio AND a.fechaRegistroSistema < :fin")

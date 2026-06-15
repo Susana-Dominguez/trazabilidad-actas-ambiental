@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-empresa-contrato-opcionales
+      author: sistema
+      changes:
+        - dropNotNullConstraint:
+            tableName: actas
+            columnName: empresa
+            columnDataType: VARCHAR(150)
+        - dropNotNullConstraint:
+            tableName: actas
+            columnName: numero_contrato
+            columnDataType: VARCHAR(60)

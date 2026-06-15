@@ -14,10 +14,8 @@ public class ActaFormDto {
     @NotBlank(message = "El consecutivo es obligatorio")
     private String consecutivo;
 
-    @NotBlank(message = "La empresa es obligatoria")
     private String empresa;
 
-    @NotBlank(message = "El número de contrato es obligatorio")
     private String numeroContrato;
 
     @NotBlank(message = "El inspector es obligatorio")

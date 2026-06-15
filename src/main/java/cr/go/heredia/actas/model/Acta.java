@@ -15,10 +15,10 @@ public class Acta {
     @Column(nullable = false, unique = true, length = 40)
     private String consecutivo;
 
-    @Column(nullable = false, length = 150)
+    @Column(length = 150)
     private String empresa;
 
-    @Column(nullable = false, length = 60)
+    @Column(length = 60)
     private String numeroContrato;
 
     @Column(nullable = false, length = 120)

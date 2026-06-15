@@ -99,7 +99,7 @@
                         <tbody>
                         <tr th:each="a : ${actasRecientes}">
                             <td th:text="${a.consecutivo}">2026-015</td>
-                            <td th:text="${a.empresa}">Empresa</td>
+                            <td th:text="${a.empresa} ?: '—'">Empresa</td>
                             <td th:text="${a.inspector}">Gestor</td>
                             <td th:text="${a.tipoActa} ?: '-'">Tipo</td>
                             <td>

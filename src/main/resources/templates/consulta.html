@@ -80,8 +80,8 @@
                     <tbody>
                     <tr th:each="a : ${resultados}">
                         <td th:text="${a.consecutivo}"></td>
-                        <td th:text="${a.empresa}"></td>
-                        <td th:text="${a.numeroContrato}"></td>
+                        <td th:text="${a.empresa} ?: '—'"></td>
+                        <td th:text="${a.numeroContrato} ?: '—'"></td>
                         <td th:text="${a.inspector}"></td>
                         <td th:text="${#temporals.format(a.fechaActa, 'dd/MM/yyyy')}"></td>
                         <td th:text="${a.tipoActa} ?: '-'"></td>

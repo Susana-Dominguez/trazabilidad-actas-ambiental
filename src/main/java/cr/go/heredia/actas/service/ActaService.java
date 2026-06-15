@@ -250,8 +250,8 @@ public class ActaService {
 
     private void mapear(Acta acta, ActaFormDto dto) {
         acta.setConsecutivo(dto.getConsecutivo().trim());
-        acta.setEmpresa(dto.getEmpresa().trim());
-        acta.setNumeroContrato(dto.getNumeroContrato().trim());
+        acta.setEmpresa(blankToNull(dto.getEmpresa()));
+        acta.setNumeroContrato(blankToNull(dto.getNumeroContrato()));
         acta.setInspector(dto.getInspector().trim());
         acta.setFechaActa(dto.getFechaActa());
         acta.setEstado(dto.getEstado());
@@ -263,5 +263,9 @@ public class ActaService {
 
     private boolean notBlank(String s) {
         return s != null && !s.isBlank();
+    }
+
+    private String blankToNull(String s) {
+        return s != null && !s.isBlank() ? s.trim() : null;
     }
 }

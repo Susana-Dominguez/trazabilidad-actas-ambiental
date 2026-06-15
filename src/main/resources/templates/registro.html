@@ -21,12 +21,13 @@
                         <div class="text-danger small" th:errors="*{consecutivo}"></div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Empresa *</label>
-                        <input class="form-control" th:field="*{empresa}" placeholder="Nombre contratista"/>
+                        <label class="form-label">Empresa</label>
+                        <input class="form-control" th:field="*{empresa}" placeholder="Opcional — contratista"/>
+                        <div class="form-text">No aplica para actas vinculadas solo a un usuario.</div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">N.º contrato *</label>
-                        <input class="form-control" th:field="*{numeroContrato}" placeholder="CT-2024-018"/>
+                        <label class="form-label">N.º contrato</label>
+                        <input class="form-control" th:field="*{numeroContrato}" placeholder="Opcional — ej. CT-2024-018"/>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Inspector / gestor *</label>

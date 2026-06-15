@@ -18,8 +18,8 @@
             <div class="glass-card mb-3">
                 <div class="card-header"><strong>Datos del acta</strong></div>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Empresa</span><strong th:text="${acta.empresa}"></strong></li>
-                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>N.º contrato</span><strong th:text="${acta.numeroContrato}"></strong></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Empresa</span><strong th:text="${acta.empresa} ?: '—'"></strong></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>N.º contrato</span><strong th:text="${acta.numeroContrato} ?: '—'"></strong></li>
                     <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Inspector</span><strong th:text="${acta.inspector}"></strong></li>
                     <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Fecha</span><strong th:text="${acta.fechaActa}"></strong></li>
                     <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Estado</span><span class="badge text-bg-primary" th:text="${acta.estado.etiqueta}"></span></li>
