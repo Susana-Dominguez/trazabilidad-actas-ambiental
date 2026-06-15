@@ -2,6 +2,7 @@ package cr.go.heredia.actas.dto;
 
 import cr.go.heredia.actas.model.EstadoActa;
 import cr.go.heredia.actas.model.OrigenActa;
+import cr.go.heredia.actas.model.TipoActa;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,7 +33,8 @@ public class ActaFormDto {
     @NotNull(message = "El origen es obligatorio")
     private OrigenActa origen;
 
-    private String tipoActa;
+    @NotNull(message = "El tipo de acta es obligatorio")
+    private TipoActa tipoActa;
     private String referenciaCaso;
     private String correoOrigen;
     private String observacionHistorial;
@@ -52,8 +54,8 @@ public class ActaFormDto {
     public void setEstado(EstadoActa estado) { this.estado = estado; }
     public OrigenActa getOrigen() { return origen; }
     public void setOrigen(OrigenActa origen) { this.origen = origen; }
-    public String getTipoActa() { return tipoActa; }
-    public void setTipoActa(String tipoActa) { this.tipoActa = tipoActa; }
+    public TipoActa getTipoActa() { return tipoActa; }
+    public void setTipoActa(TipoActa tipoActa) { this.tipoActa = tipoActa; }
     public String getReferenciaCaso() { return referenciaCaso; }
     public void setReferenciaCaso(String referenciaCaso) { this.referenciaCaso = referenciaCaso; }
     public String getCorreoOrigen() { return correoOrigen; }

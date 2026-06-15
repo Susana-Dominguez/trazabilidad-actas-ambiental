@@ -2,6 +2,7 @@ package cr.go.heredia.actas.dto;
 
 import cr.go.heredia.actas.model.EstadoActa;
 import cr.go.heredia.actas.model.OrigenActa;
+import cr.go.heredia.actas.model.TipoActa;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -46,12 +47,24 @@ public class ActaApiRequest {
         dto.setFechaActa(fechaActa);
         dto.setEstado(estado != null ? estado : EstadoActa.RECIBIDA_CORREO);
         dto.setOrigen(origen != null ? origen : OrigenActa.SURVEY123);
-        dto.setTipoActa(tipoActa);
+        dto.setTipoActa(resolverTipoActa(tipoActa));
         dto.setReferenciaCaso(referenciaCaso);
         dto.setCorreoOrigen(correoOrigen);
         dto.setObservacionHistorial(observacionHistorial);
         dto.setUsuario(usuario);
         return dto;
+    }
+
+    private TipoActa resolverTipoActa(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        for (TipoActa tipo : TipoActa.values()) {
+            if (tipo.getEtiqueta().equalsIgnoreCase(valor.trim()) || tipo.name().equalsIgnoreCase(valor.trim())) {
+                return tipo;
+            }
+        }
+        return null;
     }
 
     public String getConsecutivo() { return consecutivo; }

@@ -4,6 +4,7 @@ import cr.go.heredia.actas.dto.ActaFiltroDto;
 import cr.go.heredia.actas.dto.ActaFormDto;
 import cr.go.heredia.actas.model.EstadoActa;
 import cr.go.heredia.actas.model.OrigenActa;
+import cr.go.heredia.actas.model.TipoActa;
 import cr.go.heredia.actas.service.ActaService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -12,6 +13,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class ActaController {
@@ -29,20 +34,24 @@ public class ActaController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        model.addAttribute("totalActas", actaService.totalActas());
-        model.addAttribute("enRevision", actaService.contarEstado(EstadoActa.RECIBIDA_CORREO));
-        model.addAttribute("porFirmar", actaService.contarEstado(EstadoActa.POR_FIRMAR));
-        model.addAttribute("atrasadas", actaService.alertasPendientes().size());
+        model.addAttribute("recibidasMes", actaService.recibidasEsteMes());
+        model.addAttribute("nombreMes", actaService.nombreMesActual());
+        model.addAttribute("pendientesFirma", actaService.contarEstado(EstadoActa.POR_FIRMAR));
+        model.addAttribute("pendientesNube", actaService.contarEstado(EstadoActa.PENDIENTE_CARGA_NUBE));
+        model.addAttribute("expedientesCerrados", actaService.contarEstado(EstadoActa.CERRADA));
         model.addAttribute("actasRecientes", actaService.actasRecientes());
         model.addAttribute("topEmpresas", actaService.topEmpresas(5));
         model.addAttribute("resumenEstados", actaService.resumenDashboard());
-        model.addAttribute("pendientesFirma", actaService.contarEstado(EstadoActa.POR_FIRMAR));
-        model.addAttribute("enBandeja", actaService.contarEstado(EstadoActa.RECIBIDA_CORREO));
-        model.addAttribute("sinActualizar7d", actaService.actasSinActualizar(7));
-        model.addAttribute("cerradasSemana", actaService.cerradasRecientes(7));
         model.addAttribute("alertas", actaService.alertasPendientes());
+        model.addAttribute("chartEstadosLabels", labels(actaService.datosGraficoEstados()));
+        model.addAttribute("chartEstadosData", values(actaService.datosGraficoEstados()));
+        model.addAttribute("chartTiposLabels", labels(actaService.datosGraficoTipos()));
+        model.addAttribute("chartTiposData", values(actaService.datosGraficoTipos()));
+        model.addAttribute("chartGestoresLabels", labels(actaService.datosGraficoGestores()));
+        model.addAttribute("chartGestoresData", values(actaService.datosGraficoGestores()));
         return "dashboard";
     }
+
     @GetMapping("/ping")
     @ResponseBody
     public String ping() {
@@ -54,6 +63,7 @@ public class ActaController {
         model.addAttribute("acta", formularioVacio());
         model.addAttribute("estados", EstadoActa.values());
         model.addAttribute("origenes", OrigenActa.values());
+        model.addAttribute("tiposActa", TipoActa.values());
         return "registro";
     }
 
@@ -66,8 +76,7 @@ public class ActaController {
             RedirectAttributes flash
     ) {
         if (binding.hasErrors()) {
-            model.addAttribute("estados", EstadoActa.values());
-            model.addAttribute("origenes", OrigenActa.values());
+            agregarCatalogosRegistro(model);
             return "registro";
         }
         try {
@@ -76,8 +85,7 @@ public class ActaController {
             return "redirect:/actas/" + guardada.getId();
         } catch (IllegalArgumentException e) {
             binding.rejectValue("consecutivo", "duplicado", e.getMessage());
-            model.addAttribute("estados", EstadoActa.values());
-            model.addAttribute("origenes", OrigenActa.values());
+            agregarCatalogosRegistro(model);
             return "registro";
         } catch (Exception e) {
             flash.addFlashAttribute("error", "Error al guardar: " + e.getMessage());
@@ -89,6 +97,7 @@ public class ActaController {
     public String consulta(@ModelAttribute ActaFiltroDto filtro, Model model) {
         model.addAttribute("filtro", filtro);
         model.addAttribute("resultados", actaService.buscar(filtro));
+        model.addAttribute("estados", EstadoActa.values());
         return "consulta";
     }
 
@@ -121,6 +130,21 @@ public class ActaController {
         ActaFormDto dto = new ActaFormDto();
         dto.setEstado(EstadoActa.RECIBIDA_CORREO);
         dto.setOrigen(OrigenActa.SURVEY123);
+        dto.setTipoActa(TipoActa.INSPECCION);
         return dto;
+    }
+
+    private void agregarCatalogosRegistro(Model model) {
+        model.addAttribute("estados", EstadoActa.values());
+        model.addAttribute("origenes", OrigenActa.values());
+        model.addAttribute("tiposActa", TipoActa.values());
+    }
+
+    private List<String> labels(List<Map.Entry<String, Long>> datos) {
+        return datos.stream().map(Map.Entry::getKey).collect(Collectors.toList());
+    }
+
+    private List<Long> values(List<Map.Entry<String, Long>> datos) {
+        return datos.stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
 }

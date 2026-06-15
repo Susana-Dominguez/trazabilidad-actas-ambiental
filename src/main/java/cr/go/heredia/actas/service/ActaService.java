@@ -5,6 +5,7 @@ import cr.go.heredia.actas.dto.ActaFormDto;
 import cr.go.heredia.actas.model.Acta;
 import cr.go.heredia.actas.model.EstadoActa;
 import cr.go.heredia.actas.model.HistorialEstado;
+import cr.go.heredia.actas.model.TipoActa;
 import cr.go.heredia.actas.repository.ActaRepository;
 import cr.go.heredia.actas.repository.HistorialEstadoRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -18,7 +19,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -109,6 +112,16 @@ public class ActaService {
             if (notBlank(filtro.getInspector())) {
                 preds.add(cb.like(cb.lower(root.get("inspector")), "%" + filtro.getInspector().toLowerCase() + "%"));
             }
+            if (filtro.getEstado() != null) {
+                preds.add(cb.equal(root.get("estado"), filtro.getEstado()));
+            }
+            if (filtro.getFechaDesde() != null) {
+                preds.add(cb.greaterThanOrEqualTo(root.get("fechaActa"), filtro.getFechaDesde()));
+            }
+            if (filtro.getFechaHasta() != null) {
+                preds.add(cb.lessThanOrEqualTo(root.get("fechaActa"), filtro.getFechaHasta()));
+            }
+            query.orderBy(cb.desc(root.get("fechaActa")));
             return cb.and(preds.toArray(new Predicate[0]));
         };
         return actaRepository.findAll(spec);
@@ -177,6 +190,43 @@ public class ActaService {
                 .count();
     }
 
+    public long recibidasEsteMes() {
+        YearMonth mes = YearMonth.now();
+        LocalDateTime inicio = mes.atDay(1).atStartOfDay();
+        LocalDateTime fin = mes.plusMonths(1).atDay(1).atStartOfDay();
+        return actaRepository.countRegistradasEntre(inicio, fin);
+    }
+
+    public List<Map.Entry<String, Long>> datosGraficoEstados() {
+        List<Map.Entry<String, Long>> datos = new ArrayList<>();
+        for (EstadoActa estado : EstadoActa.values()) {
+            long count = actaRepository.countByEstado(estado);
+            if (count > 0) {
+                datos.add(Map.entry(estado.getEtiqueta(), count));
+            }
+        }
+        return datos;
+    }
+
+    public List<Map.Entry<String, Long>> datosGraficoTipos() {
+        return actaRepository.contarPorTipoActa().stream()
+                .map(row -> Map.entry((String) row[0], (Long) row[1]))
+                .collect(Collectors.toList());
+    }
+
+    public List<Map.Entry<String, Long>> datosGraficoGestores() {
+        return actaRepository.contarPorInspector().stream()
+                .map(row -> Map.entry((String) row[0], (Long) row[1]))
+                .collect(Collectors.toList());
+    }
+
+    public String nombreMesActual() {
+        YearMonth mes = YearMonth.now();
+        String[] nombres = {"enero", "febrero", "marzo", "abril", "mayo", "junio",
+                "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"};
+        return nombres[mes.getMonthValue() - 1] + " " + mes.getYear();
+    }
+
     public List<Map<String, Object>> resumenDashboard() {
         List<Map<String, Object>> items = new ArrayList<>();
         for (EstadoActa estado : EstadoActa.values()) {
@@ -206,7 +256,7 @@ public class ActaService {
         acta.setFechaActa(dto.getFechaActa());
         acta.setEstado(dto.getEstado());
         acta.setOrigen(dto.getOrigen());
-        acta.setTipoActa(dto.getTipoActa());
+        acta.setTipoActa(dto.getTipoActa() != null ? dto.getTipoActa().getEtiqueta() : null);
         acta.setReferenciaCaso(dto.getReferenciaCaso());
         acta.setCorreoOrigen(dto.getCorreoOrigen());
     }

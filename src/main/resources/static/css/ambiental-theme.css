@@ -121,10 +121,17 @@
 .kpi-number { font-size: 2rem; font-weight: 700; }
 .kpi-title { font-size: 0.9rem; opacity: 0.95; }
 
-.kpi-verde  { background: linear-gradient(135deg, #43a047, #2e7d32); }
-.kpi-azul   { background: linear-gradient(135deg, #42a5f5, #1976d2); }
-.kpi-gris   { background: linear-gradient(135deg, #90a4ae, #607d8b); }
-.kpi-alerta { background: linear-gradient(135deg, #ef5350, #c62828); }
+.kpi-verde   { background: linear-gradient(135deg, #66bb6a, #2e7d32); }
+.kpi-azul    { background: linear-gradient(135deg, #42a5f5, #1976d2); }
+.kpi-gris    { background: linear-gradient(135deg, #90a4ae, #607d8b); }
+.kpi-naranja { background: linear-gradient(135deg, #ffb74d, #f57c00); }
+.kpi-cerrado { background: linear-gradient(135deg, #81c784, #388e3c); }
+.kpi-alerta  { background: linear-gradient(135deg, #ef9a9a, #e53935); }
+
+.chart-container {
+    position: relative;
+    height: 280px;
+}
 
 /* Botones acorde a paleta */
 .btn-ambiental {

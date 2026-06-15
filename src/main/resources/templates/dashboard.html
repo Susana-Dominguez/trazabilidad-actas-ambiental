@@ -10,34 +10,67 @@
     <div class="page-header d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-1">Dashboard de seguimiento</h1>
-            <p class="subtitle mb-0">Trazabilidad y control documental de actas ambientales</p>
+            <p class="subtitle mb-0">Indicadores de eficiencia del proceso documental — Gestión Ambiental</p>
         </div>
         <a class="btn btn-ambiental" href="/actas/nueva">+ Registrar acta</a>
     </div>
 
+    <!-- KPIs -->
     <div class="row mb-4 g-3">
-        <div class="col-md-3">
-            <div class="card card-kpi kpi-verde p-3">
-                <div class="kpi-title">Actas registradas</div>
-                <div class="kpi-number" th:text="${totalActas}">0</div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-kpi kpi-verde p-3 h-100">
+                <div class="kpi-title">Actas recibidas este mes</div>
+                <div class="kpi-number" th:text="${recibidasMes}">0</div>
+                <div class="small opacity-75" th:text="${nombreMes}">junio 2026</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-kpi kpi-gris p-3">
-                <div class="kpi-title">Recibidas / en bandeja</div>
-                <div class="kpi-number" th:text="${enRevision}">0</div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-kpi kpi-naranja p-3 h-100">
+                <div class="kpi-title">Pendientes de firma</div>
+                <div class="kpi-number" th:text="${pendientesFirma}">0</div>
+                <div class="small opacity-75">Requieren acción del gestor</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-kpi kpi-azul p-3">
-                <div class="kpi-title">Por firmar</div>
-                <div class="kpi-number" th:text="${porFirmar}">0</div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-kpi kpi-azul p-3 h-100">
+                <div class="kpi-title">Pendientes de carga a nube</div>
+                <div class="kpi-number" th:text="${pendientesNube}">0</div>
+                <div class="small opacity-75">Listas para resguardo</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-kpi kpi-alerta p-3">
-                <div class="kpi-title">Atrasadas</div>
-                <div class="kpi-number" th:text="${atrasadas}">0</div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-kpi kpi-cerrado p-3 h-100">
+                <div class="kpi-title">Expedientes cerrados</div>
+                <div class="kpi-number" th:text="${expedientesCerrados}">0</div>
+                <div class="small opacity-75">Proceso completado</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-4">
+            <div class="glass-card p-4 h-100">
+                <h5 class="text-success mb-3">📊 Actas por estado</h5>
+                <div class="chart-container">
+                    <canvas id="chartEstados"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="glass-card p-4 h-100">
+                <h5 class="text-primary mb-3">📋 Actas por tipo</h5>
+                <div class="chart-container">
+                    <canvas id="chartTipos"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="glass-card p-4 h-100">
+                <h5 class="text-secondary mb-3">👤 Actas por gestor</h5>
+                <div class="chart-container">
+                    <canvas id="chartGestores"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -56,7 +89,8 @@
                         <tr>
                             <th>Consecutivo</th>
                             <th>Empresa</th>
-                            <th>Contrato</th>
+                            <th>Gestor</th>
+                            <th>Tipo</th>
                             <th>Estado</th>
                             <th>Fecha</th>
                             <th></th>
@@ -66,7 +100,8 @@
                         <tr th:each="a : ${actasRecientes}">
                             <td th:text="${a.consecutivo}">2026-015</td>
                             <td th:text="${a.empresa}">Empresa</td>
-                            <td th:text="${a.numeroContrato}">CT-2026-018</td>
+                            <td th:text="${a.inspector}">Gestor</td>
+                            <td th:text="${a.tipoActa} ?: '-'">Tipo</td>
                             <td>
                                 <span class="status-badge text-bg-secondary" th:text="${a.estado.etiqueta}">Estado</span>
                             </td>
@@ -74,7 +109,7 @@
                             <td><a th:href="@{/actas/{id}(id=${a.id})}">Ver</a></td>
                         </tr>
                         <tr th:if="${actasRecientes.isEmpty()}">
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="7" class="text-center text-muted py-4">
                                 No hay actas registradas.
                                 <a href="/actas/nueva">Registrar la primera acta</a>
                             </td>
@@ -106,7 +141,7 @@
         <div class="col-lg-4">
 
             <div class="glass-card p-4 mb-4">
-                <h4 class="text-primary">📊 Estado de las actas</h4>
+                <h4 class="text-primary">📈 Detalle por estado</h4>
                 <ul class="list-group list-group-flush mt-3">
                     <li class="list-group-item d-flex justify-content-between px-0"
                         th:each="item : ${resumenEstados}">
@@ -116,18 +151,8 @@
                 </ul>
             </div>
 
-            <div class="glass-card p-4 mb-4">
-                <h4 class="text-primary">⏰ Seguimiento operativo</h4>
-                <div class="mt-3 text-secondary">
-                    <p>🟡 <span th:text="${pendientesFirma}">0</span> actas pendientes de firma</p>
-                    <p>🔵 <span th:text="${enBandeja}">0</span> actas recibidas por correo</p>
-                    <p>🔴 <span th:text="${sinActualizar7d}">0</span> actas con más de 7 días sin actualizar</p>
-                    <p>🟢 <span th:text="${cerradasSemana}">0</span> actas cerradas en los últimos 7 días</p>
-                </div>
-            </div>
-
             <div class="glass-card p-4 mb-4" th:if="${!alertas.isEmpty()}">
-                <h4 class="text-danger">⚠️ Alertas</h4>
+                <h4 class="text-danger">⚠️ Alertas — atrasadas</h4>
                 <ul class="list-group list-group-flush mt-3">
                     <li class="list-group-item px-0" th:each="a : ${alertas}">
                         <a th:href="@{/actas/{id}(id=${a.id})}" th:text="${a.consecutivo}">2026-003</a>
@@ -139,14 +164,7 @@
             <div class="footer-box p-3">
                 <h6 class="text-success">🚀 Evolución futura</h6>
                 <small class="text-secondary">
-                    Integración con ArcGIS para visualizar:
-                    <ul class="mt-2 mb-0">
-                        <li>Inspecciones</li>
-                        <li>Contratos</li>
-                        <li>Empresas</li>
-                        <li>Rutas de recolección</li>
-                        <li>Indicadores geográficos</li>
-                    </ul>
+                    Integración con ArcGIS para visualizar inspecciones, contratos y rutas de recolección.
                 </small>
             </div>
 
@@ -154,6 +172,80 @@
     </div>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+    const palette = {
+        verde:  ['#66bb6a', '#43a047', '#2e7d32', '#1b5e36'],
+        azul:   ['#42a5f5', '#1976d2', '#1565c0', '#0d47a1'],
+        gris:   ['#90a4ae', '#78909c', '#607d8b', '#455a64'],
+        mix:    ['#66bb6a', '#42a5f5', '#ffb74d', '#ef9a9a', '#90a4ae', '#81c784']
+    };
+
+    function crearPie(canvasId, labels, data, colors) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || !labels.length) return;
+        new Chart(canvas, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors.slice(0, labels.length),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                }
+            }
+        });
+    }
+
+    function crearBarras(canvasId, labels, data, color) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || !labels.length) return;
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Actas',
+                    data: data,
+                    backgroundColor: color,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { ticks: { font: { size: 10 } } }
+                }
+            }
+        });
+    }
+
+    crearPie('chartEstados',
+        /*[[${chartEstadosLabels}]]*/ [],
+        /*[[${chartEstadosData}]]*/ [],
+        palette.mix);
+
+    crearPie('chartTipos',
+        /*[[${chartTiposLabels}]]*/ [],
+        /*[[${chartTiposData}]]*/ [],
+        palette.verde.concat(palette.azul));
+
+    crearBarras('chartGestores',
+        /*[[${chartGestoresLabels}]]*/ [],
+        /*[[${chartGestoresData}]]*/ [],
+        '#42a5f5');
+</script>
 <script th:replace="~{layout :: scripts}"></script>
 </body>
 </html>

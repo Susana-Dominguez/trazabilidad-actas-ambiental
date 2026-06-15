@@ -8,7 +8,7 @@
 <main class="container ambiental-main">
     <div class="page-header mb-4">
         <h1 class="h3 mb-1">Consulta de actas</h1>
-        <p class="subtitle">Busque por empresa, contrato, consecutivo o inspector.</p>
+        <p class="subtitle">Busque por empresa, contrato, consecutivo, inspector, estado o rango de fechas.</p>
     </div>
 
     <div class="glass-card mb-4">
@@ -17,60 +17,83 @@
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Empresa</label>
-                        <input class="form-control" name="empresa" th:value="${filtro.empresa}"/>
+                        <input class="form-control" th:field="*{empresa}" placeholder="EcoHeredia"/>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Contrato</label>
-                        <input class="form-control" name="numeroContrato" th:value="${filtro.numeroContrato}"/>
+                        <input class="form-control" th:field="*{numeroContrato}" placeholder="CT-2024-018"/>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Consecutivo</label>
-                        <input class="form-control" name="consecutivo" th:value="${filtro.consecutivo}"/>
+                        <input class="form-control" th:field="*{consecutivo}" placeholder="2026-010"/>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Inspector</label>
-                        <input class="form-control" name="inspector" th:value="${filtro.inspector}"/>
+                        <label class="form-label">Inspector / gestor</label>
+                        <input class="form-control" th:field="*{inspector}" placeholder="Josué M."/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Estado *</label>
+                        <select class="form-select" th:field="*{estado}">
+                            <option value="">— Todos —</option>
+                            <option th:each="e : ${estados}" th:value="${e}" th:text="${e.etiqueta}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha desde</label>
+                        <input type="date" class="form-control" th:field="*{fechaDesde}"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha hasta</label>
+                        <input type="date" class="form-control" th:field="*{fechaHasta}"/>
                     </div>
                 </div>
                 <div class="mt-3">
                     <button class="btn btn-buscar" type="submit">Buscar</button>
                     <a class="btn btn-outline-ambiental" href="/actas/consulta">Limpiar</a>
                 </div>
+                <p class="text-muted small mt-2 mb-0">
+                    Ejemplo rango: 01/01/2026 — 31/01/2026
+                </p>
             </form>
         </div>
     </div>
 
     <div class="glass-card">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead>
-                <tr>
-                    <th>Consecutivo</th>
-                    <th>Empresa</th>
-                    <th>Contrato</th>
-                    <th>Inspector</th>
-                    <th>Fecha</th>
-                    <th>Estado</th>
-                    <th>Origen</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="a : ${resultados}">
-                    <td th:text="${a.consecutivo}"></td>
-                    <td th:text="${a.empresa}"></td>
-                    <td th:text="${a.numeroContrato}"></td>
-                    <td th:text="${a.inspector}"></td>
-                    <td th:text="${a.fechaActa}"></td>
-                    <td><span class="badge text-bg-secondary" th:text="${a.estado.etiqueta}"></span></td>
-                    <td th:text="${a.origen}"></td>
-                    <td><a th:href="@{/actas/{id}(id=${a.id})}">Detalle</a></td>
-                </tr>
-                <tr th:if="${resultados.isEmpty()}">
-                    <td colspan="8" class="text-center text-muted py-4">Sin resultados. Ajuste filtros o registre una acta.</td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="card-body p-3">
+            <p class="text-muted small mb-3" th:if="${!resultados.isEmpty()}">
+                <span th:text="${resultados.size()}">0</span> resultado(s) encontrado(s)
+            </p>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Consecutivo</th>
+                        <th>Empresa</th>
+                        <th>Contrato</th>
+                        <th>Inspector</th>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="a : ${resultados}">
+                        <td th:text="${a.consecutivo}"></td>
+                        <td th:text="${a.empresa}"></td>
+                        <td th:text="${a.numeroContrato}"></td>
+                        <td th:text="${a.inspector}"></td>
+                        <td th:text="${#temporals.format(a.fechaActa, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${a.tipoActa} ?: '-'"></td>
+                        <td><span class="badge text-bg-secondary" th:text="${a.estado.etiqueta}"></span></td>
+                        <td><a th:href="@{/actas/{id}(id=${a.id})}">Detalle</a></td>
+                    </tr>
+                    <tr th:if="${resultados.isEmpty()}">
+                        <td colspan="8" class="text-center text-muted py-4">Sin resultados. Ajuste filtros o registre una acta.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </main>

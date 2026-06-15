@@ -49,8 +49,11 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Tipo de acta</label>
-                        <input class="form-control" th:field="*{tipoActa}" placeholder="Notificación, Minuta..."/>
+                        <label class="form-label">Tipo de acta *</label>
+                        <select class="form-select" th:field="*{tipoActa}" required>
+                            <option value="">— Seleccione —</option>
+                            <option th:each="t : ${tiposActa}" th:value="${t}" th:text="${t.etiqueta}"></option>
+                        </select>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Correo origen (Outlook)</label>
