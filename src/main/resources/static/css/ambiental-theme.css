@@ -202,3 +202,8 @@
     color: var(--gris-texto);
     font-weight: 500;
 }
+
+.doc-table th {
+    color: var(--gris-texto);
+    font-weight: 500;
+}

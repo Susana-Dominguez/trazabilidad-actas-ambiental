@@ -12,7 +12,7 @@ public class Acta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 40)
+    @Column(nullable = false, unique = true, length = 80)
     private String consecutivo;
 
     @Column(length = 150)

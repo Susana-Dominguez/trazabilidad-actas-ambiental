@@ -2,11 +2,19 @@ package cr.go.heredia.actas.web;
 
 import cr.go.heredia.actas.dto.ActaFiltroDto;
 import cr.go.heredia.actas.dto.ActaFormDto;
+import cr.go.heredia.actas.dto.DocumentoActaView;
+import cr.go.heredia.actas.model.Acta;
 import cr.go.heredia.actas.model.EstadoActa;
 import cr.go.heredia.actas.model.OrigenActa;
 import cr.go.heredia.actas.model.TipoActa;
 import cr.go.heredia.actas.service.ActaService;
+import cr.go.heredia.actas.service.DocumentoActaService;
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,9 +32,11 @@ import java.util.stream.Collectors;
 public class ActaController {
 
     private final ActaService actaService;
+    private final DocumentoActaService documentoActaService;
 
-    public ActaController(ActaService actaService) {
+    public ActaController(ActaService actaService, DocumentoActaService documentoActaService) {
         this.actaService = actaService;
+        this.documentoActaService = documentoActaService;
     }
 
     @GetMapping("/")
@@ -61,9 +73,7 @@ public class ActaController {
     @GetMapping("/actas/nueva")
     public String formularioNuevo(Model model) {
         model.addAttribute("acta", formularioVacio());
-        model.addAttribute("estados", EstadoActa.values());
-        model.addAttribute("origenes", OrigenActa.values());
-        model.addAttribute("tiposActa", TipoActa.values());
+        agregarCatalogosRegistro(model);
         return "registro";
     }
 
@@ -95,9 +105,11 @@ public class ActaController {
 
     @GetMapping("/actas/consulta")
     public String consulta(@ModelAttribute ActaFiltroDto filtro, Model model) {
+        List<Acta> resultados = actaService.buscar(filtro);
         model.addAttribute("filtro", filtro);
-        model.addAttribute("resultados", actaService.buscar(filtro));
+        model.addAttribute("resultados", resultados);
         model.addAttribute("estados", EstadoActa.values());
+        model.addAttribute("documentosPorActa", mapaDocumentos(resultados));
         return "consulta";
     }
 
@@ -108,9 +120,31 @@ public class ActaController {
                     model.addAttribute("acta", acta);
                     model.addAttribute("historial", actaService.historial(id));
                     model.addAttribute("estados", EstadoActa.values());
+                    documentoActaService.vistaDocumento(acta).ifPresent(d -> model.addAttribute("documento", d));
                     return "detalle";
                 })
                 .orElse("redirect:/actas/consulta");
+    }
+
+    @GetMapping("/actas/{id}/documento/ver")
+    public ResponseEntity<Resource> verDocumento(@PathVariable Long id) {
+        Acta acta = actaService.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Acta no encontrada"));
+        DocumentoActaView vista = documentoActaService.vistaDocumento(acta)
+                .orElseThrow(() -> new IllegalArgumentException("Sin documento adjunto"));
+        if (!vista.isPuedeVer()) {
+            throw new IllegalArgumentException("Este tipo de archivo solo puede descargarse");
+        }
+        return respuestaDocumento(acta, vista.getNombreArchivo(), false);
+    }
+
+    @GetMapping("/actas/{id}/documento/descargar")
+    public ResponseEntity<Resource> descargarDocumento(@PathVariable Long id) {
+        Acta acta = actaService.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Acta no encontrada"));
+        DocumentoActaView vista = documentoActaService.vistaDocumento(acta)
+                .orElseThrow(() -> new IllegalArgumentException("Sin documento adjunto"));
+        return respuestaDocumento(acta, vista.getNombreArchivo(), true);
     }
 
     @PostMapping("/actas/{id}/estado")
@@ -124,6 +158,37 @@ public class ActaController {
         actaService.actualizarEstado(id, estado, observacion, usuario);
         flash.addFlashAttribute("mensaje", "Estado actualizado.");
         return "redirect:/actas/" + id;
+    }
+
+    private ResponseEntity<Resource> respuestaDocumento(Acta acta, String nombreArchivo, boolean descarga) {
+        try {
+            Resource resource = documentoActaService.cargarArchivo(acta);
+            MediaType mediaType = documentoActaService.mediaType(nombreArchivo);
+            HttpHeaders headers = new HttpHeaders();
+            if (descarga) {
+                headers.setContentDisposition(ContentDisposition.attachment()
+                        .filename(nombreArchivo, StandardCharsets.UTF_8)
+                        .build());
+            } else {
+                headers.setContentDisposition(ContentDisposition.inline()
+                        .filename(nombreArchivo, StandardCharsets.UTF_8)
+                        .build());
+            }
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(mediaType)
+                    .body(resource);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("No se pudo abrir el documento: " + e.getMessage());
+        }
+    }
+
+    private Map<Long, DocumentoActaView> mapaDocumentos(List<Acta> actas) {
+        Map<Long, DocumentoActaView> mapa = new HashMap<>();
+        for (Acta acta : actas) {
+            documentoActaService.vistaDocumento(acta).ifPresent(d -> mapa.put(acta.getId(), d));
+        }
+        return mapa;
     }
 
     private ActaFormDto formularioVacio() {

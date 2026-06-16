@@ -5,6 +5,8 @@ import cr.go.heredia.actas.model.OrigenActa;
 import cr.go.heredia.actas.model.TipoActa;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -12,6 +14,11 @@ import java.time.LocalDate;
 public class ActaFormDto {
 
     @NotBlank(message = "El consecutivo es obligatorio")
+    @Size(max = 80, message = "El consecutivo no puede superar 80 caracteres")
+    @Pattern(
+            regexp = "^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$",
+            message = "Formato inválido. Ej: 2026-010 o Inspeccion-202664100154"
+    )
     private String consecutivo;
 
     private String empresa;

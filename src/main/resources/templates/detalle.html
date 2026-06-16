@@ -21,18 +21,62 @@
                     <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Empresa</span><strong th:text="${acta.empresa} ?: '—'"></strong></li>
                     <li class="list-group-item d-flex justify-content-between bg-transparent"><span>N.º contrato</span><strong th:text="${acta.numeroContrato} ?: '—'"></strong></li>
                     <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Inspector</span><strong th:text="${acta.inspector}"></strong></li>
-                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Fecha</span><strong th:text="${acta.fechaActa}"></strong></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Fecha</span><strong th:text="${#temporals.format(acta.fechaActa, 'dd/MM/yyyy')}"></strong></li>
                     <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Estado</span><span class="badge text-bg-primary" th:text="${acta.estado.etiqueta}"></span></li>
                     <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Origen</span><strong th:text="${acta.origen}"></strong></li>
-                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Tipo</span><strong th:text="${acta.tipoActa} ?: '-'"></strong></li>
-                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Correo origen</span><strong th:text="${acta.correoOrigen} ?: '-'"></strong></li>
-                    <li class="list-group-item bg-transparent" th:if="${acta.rutaDocumento}">
-                        <span class="text-muted small">Documento:</span>
-                        <div th:text="${acta.rutaDocumento}"></div>
-                    </li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Tipo</span><strong th:text="${acta.tipoActa} ?: '—'"></strong></li>
+                    <li class="list-group-item d-flex justify-content-between bg-transparent"><span>Correo origen</span><strong th:text="${acta.correoOrigen} ?: '—'"></strong></li>
                 </ul>
             </div>
+
+            <div class="glass-card mb-3" th:if="${documento != null}">
+                <div class="card-header"><strong>📎 Documento adjunto</strong></div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered mb-0 doc-table">
+                        <tbody>
+                        <tr>
+                            <th class="bg-light" style="width:35%">Documento original</th>
+                            <td th:text="'📄 ' + ${documento.nombreArchivo}">📄 archivo.pdf</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Estado firma</th>
+                            <td th:text="${documento.estadoFirma}">Firmado digitalmente</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Fecha carga</th>
+                            <td th:text="${#temporals.format(documento.fechaCarga, 'dd/MM/yyyy')}">16/06/2026</td>
+                        </tr>
+                        <tr th:if="${documento.puedeVer}">
+                            <th class="bg-light">Abrir</th>
+                            <td>
+                                <a th:href="@{/actas/{id}/documento/ver(id=${acta.id})}" target="_blank" rel="noopener">
+                                    🔗 Ver documento
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Descargar</th>
+                            <td>
+                                <a th:href="@{/actas/{id}/documento/descargar(id=${acta.id})}">
+                                    🔽 Descargar
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <p class="text-muted small p-3 mb-0" th:if="${documento.word}">
+                        Los archivos Word solo pueden descargarse; la vista previa en navegador no está disponible.
+                    </p>
+                </div>
+            </div>
+
+            <div class="glass-card mb-3" th:if="${documento == null}">
+                <div class="card-body text-muted">
+                    Sin documento adjunto registrado.
+                </div>
+            </div>
         </div>
+
         <div class="col-lg-5">
             <div class="glass-card mb-3">
                 <div class="card-header"><strong>Cambiar estado (trazabilidad)</strong></div>

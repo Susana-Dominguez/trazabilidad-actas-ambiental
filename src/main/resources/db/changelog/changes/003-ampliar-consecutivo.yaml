@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-ampliar-consecutivo
+      author: sistema
+      changes:
+        - modifyDataType:
+            tableName: actas
+            columnName: consecutivo
+            newDataType: VARCHAR(80)

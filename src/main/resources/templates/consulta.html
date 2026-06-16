@@ -25,7 +25,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Consecutivo</label>
-                        <input class="form-control" th:field="*{consecutivo}" placeholder="2026-010"/>
+                        <input class="form-control" th:field="*{consecutivo}" placeholder="Inspeccion-202664100154"/>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Inspector / gestor</label>
@@ -74,11 +74,12 @@
                         <th>Fecha</th>
                         <th>Tipo</th>
                         <th>Estado</th>
+                        <th>Documento</th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="a : ${resultados}">
+                    <tr th:each="a : ${resultados}" th:with="doc=${documentosPorActa[a.id]}">
                         <td th:text="${a.consecutivo}"></td>
                         <td th:text="${a.empresa} ?: '—'"></td>
                         <td th:text="${a.numeroContrato} ?: '—'"></td>
@@ -86,10 +87,20 @@
                         <td th:text="${#temporals.format(a.fechaActa, 'dd/MM/yyyy')}"></td>
                         <td th:text="${a.tipoActa} ?: '-'"></td>
                         <td><span class="badge text-bg-secondary" th:text="${a.estado.etiqueta}"></span></td>
+                        <td class="small">
+                            <span th:if="${doc == null}" class="text-muted">—</span>
+                            <span th:if="${doc != null}">
+                                <span th:text="'📄 ' + ${doc.nombreArchivo}"></span><br/>
+                                <a th:if="${doc.puedeVer}" th:href="@{/actas/{id}/documento/ver(id=${a.id})}"
+                                   target="_blank" rel="noopener">🔗 Ver</a>
+                                <span th:if="${doc.puedeVer}"> · </span>
+                                <a th:href="@{/actas/{id}/documento/descargar(id=${a.id})}">🔽 Descargar</a>
+                            </span>
+                        </td>
                         <td><a th:href="@{/actas/{id}(id=${a.id})}">Detalle</a></td>
                     </tr>
                     <tr th:if="${resultados.isEmpty()}">
-                        <td colspan="8" class="text-center text-muted py-4">Sin resultados. Ajuste filtros o registre una acta.</td>
+                        <td colspan="9" class="text-center text-muted py-4">Sin resultados. Ajuste filtros o registre una acta.</td>
                     </tr>
                     </tbody>
                 </table>
