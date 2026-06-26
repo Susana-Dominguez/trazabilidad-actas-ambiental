@@ -26,7 +26,11 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getRequestURI().startsWith("/api/");
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/api/webhooks/")) {
+            return true;
+        }
+        return !uri.startsWith("/api/");
     }
 
     @Override

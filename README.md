@@ -77,6 +77,11 @@ Cabecera: `X-API-KEY: demo-api-key-heredia` (configurable en `application.yml`).
 
 Documentación completa: **`docs/API-POWER-AUTOMATE.md`**
 
+Demo Survey123 Inspección (webhook sin Power Automate): **`docs/DEMO-SURVEY123-INSPECCION.md`**
+
+Arquitectura, roadmap e integración (presentación TI): **`docs/ARQUITECTURA-ROADMAP-INTEGRACION.md`**  
+PDF con diagramas exportados: **`docs/ARQUITECTURA-ROADMAP-INTEGRACION.pdf`** (regenerar: `python docs/build-pdf.py`)
+
 Despliegue demo en AWS (Route 53 + EC2 + HTTPS): **`docs/DESPLIEGUE-AWS.md`**
 
 ## Demo en reunión (5 min)

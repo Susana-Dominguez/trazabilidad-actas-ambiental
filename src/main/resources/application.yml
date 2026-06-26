@@ -14,6 +14,18 @@ spring:
 server:
   port: 8080
 
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 app:
   upload-dir: ./uploads
   public-base-url: http://localhost:8080
@@ -22,6 +34,27 @@ app:
   alertas:
     dias-pendiente-firma: 3
     dias-pendiente-nube: 5
+  notificaciones:
+    enabled: ${NOTIFICACIONES_ENABLED:false}
+    from: ${MAIL_FROM:actas-ambiental@municipalidad.go.cr}
+    copia-gestor: ${MAIL_GESTOR:}
+  survey123:
+    webhook-secret: ${SURVEY123_WEBHOOK_SECRET:}
+    inspeccion:
+      form-title-keywords: Inspeccion,Inspección,inspeccion
+      tipo-acta: Inspección
+      consecutivo-prefix: Inspeccion
+      field-inspector: inspector,inspector_nombre,gestor,nombre_gestor
+      field-empresa: empresa,contratista,nombre_empresa
+      field-contrato: numero_contrato,contrato,no_contrato
+      field-referencia: referencia_caso,referencia,caso,descripcion
+      field-fecha: fecha_acta,fecha,date
+  arcgis:
+    token: ${ARCGIS_TOKEN:}
+    username: ${ARCGIS_USERNAME:}
+    password: ${ARCGIS_PASSWORD:}
+    portal-url: ${ARCGIS_PORTAL_URL:https://www.arcgis.com/sharing/rest/generateToken}
+    referer: ${ARCGIS_REFERER:https://www.arcgis.com}
 
 ---
 spring:

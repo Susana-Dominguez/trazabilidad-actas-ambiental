@@ -77,6 +77,32 @@ public class ActaService {
     }
 
     @Transactional
+    public Acta registrarConArchivo(ActaFormDto dto, java.nio.file.Path archivoOrigen, String nombreArchivo) throws IOException {
+        actaRepository.findByConsecutivo(dto.getConsecutivo()).ifPresent(a -> {
+            throw new IllegalArgumentException("Ya existe una acta con consecutivo " + dto.getConsecutivo());
+        });
+
+        Acta acta = new Acta();
+        mapear(acta, dto);
+        acta.setFechaRegistroSistema(LocalDateTime.now());
+        acta.setUltimaActualizacion(LocalDateTime.now());
+
+        if (archivoOrigen != null && java.nio.file.Files.isRegularFile(archivoOrigen)) {
+            String safeName = nombreArchivo != null && !nombreArchivo.isBlank()
+                    ? nombreArchivo
+                    : archivoOrigen.getFileName().toString();
+            String nombre = dto.getConsecutivo().replaceAll("[^a-zA-Z0-9_-]", "_") + "_" + safeName;
+            Path destino = uploadDir.resolve(nombre);
+            java.nio.file.Files.copy(archivoOrigen, destino, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            acta.setRutaDocumento(destino.toString());
+        }
+
+        Acta guardada = actaRepository.save(acta);
+        registrarHistorial(guardada, guardada.getEstado(), dto.getObservacionHistorial(), dto.getUsuario());
+        return guardada;
+    }
+
+    @Transactional
     public Acta actualizarEstado(Long id, EstadoActa nuevoEstado, String observacion, String usuario) {
         Acta acta = actaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Acta no encontrada"));

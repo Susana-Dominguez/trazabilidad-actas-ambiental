@@ -1,0 +1,23 @@
+{
+  "eventType": "FeaturesCreated",
+  "surveyInfo": {
+    "name": "Demo Actas Inspeccion",
+    "formTitle": "Acta Inspección Ambiental — Demo",
+    "serviceUrl": "https://services1.arcgis.com/REEMPLAZAR/arcgis/rest/services/Demo_Inspeccion/formserver/FeatureServer"
+  },
+  "userInfo": {
+    "username": "inspector.demo",
+    "fullName": "Juan Pérez Demo",
+    "email": "tu-correo@ejemplo.com"
+  },
+  "feature": {
+    "attributes": {
+      "inspector": "Juan Pérez Demo",
+      "empresa": "EcoHeredia S.A.",
+      "numero_contrato": "CT-2024-018",
+      "fecha_acta": "2026-06-23",
+      "referencia_caso": "Demo reunión TI/SIG — Inspección Guararí",
+      "objectid": 1
+    }
+  }
+}

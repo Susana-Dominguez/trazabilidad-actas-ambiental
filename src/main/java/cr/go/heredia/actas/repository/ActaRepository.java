@@ -15,6 +15,8 @@ public interface ActaRepository extends JpaRepository<Acta, Long>, JpaSpecificat
 
     Optional<Acta> findByConsecutivo(String consecutivo);
 
+    Optional<Acta> findTopByConsecutivoStartingWithOrderByConsecutivoDesc(String prefix);
+
     long countByEstado(EstadoActa estado);
 
     @Query("SELECT a.estado, COUNT(a) FROM Acta a GROUP BY a.estado")

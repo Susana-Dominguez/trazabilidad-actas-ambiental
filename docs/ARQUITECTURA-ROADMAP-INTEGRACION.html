@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <title>Arquitectura, Roadmap e Integración</title>
+  <style>
+    @page { size: A4; margin: 2cm 1.8cm; }
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 10.5pt;
+        line-height: 1.45;
+        color: #1a1a1a;
+        max-width: 100%;
+    }
+    h1 {
+        color: #1b5e20;
+        font-size: 22pt;
+        border-bottom: 2px solid #1b5e20;
+        padding-bottom: 0.3em;
+        page-break-after: avoid;
+    }
+    h2 {
+        color: #2e7d32;
+        font-size: 16pt;
+        margin-top: 1.4em;
+        page-break-after: avoid;
+    }
+    h3 {
+        color: #388e3c;
+        font-size: 12.5pt;
+        page-break-after: avoid;
+    }
+    h4 { font-size: 11pt; page-break-after: avoid; }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1em 0;
+        font-size: 9.5pt;
+        page-break-inside: avoid;
+    }
+    th, td {
+        border: 1px solid #c8e6c9;
+        padding: 6px 8px;
+        text-align: left;
+        vertical-align: top;
+    }
+    th { background: #e8f5e9; color: #1b5e20; }
+    tr:nth-child(even) td { background: #f9fdf9; }
+    img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 1em auto;
+        page-break-inside: avoid;
+    }
+    code {
+        background: #f1f8e9;
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-size: 9pt;
+    }
+    blockquote {
+        border-left: 4px solid #81c784;
+        margin: 1em 0;
+        padding: 0.5em 1em;
+        background: #f1f8e9;
+        color: #33691e;
+    }
+    hr { border: none; border-top: 1px solid #c8e6c9; margin: 2em 0; }
+    a { color: #2e7d32; text-decoration: none; }
+    pre {
+        background: #f5f5f5;
+        padding: 0.8em;
+        border-radius: 4px;
+        font-size: 9pt;
+        overflow-x: auto;
+    }
+    </style>
+</head>
+<body>
+<h1 id="arquitectura-roadmap-e-integracion">Arquitectura, Roadmap e Integración</h1>
+<p><strong>Sistema de Trazabilidad y Control Documental de Actas Ambientales</strong><br />
+<strong>Municipalidad de Heredia — Gestión Ambiental</strong><br />
+<strong>Versión del prototipo:</strong> 0.1.0-DEMO</p>
+<p>Documento de apoyo para presentación ante el departamento de Tecnología.</p>
+<hr />
+<h2 id="1-arquitectura">1. Arquitectura</h2>
+<h3 id="11-vision-general">1.1 Visión general</h3>
+<p>El sistema es una <strong>aplicación monolítica</strong> (Spring Boot) que centraliza <strong>metadatos</strong>, <strong>estados documentales</strong>, <strong>historial auditado</strong> y <strong>documentos adjuntos</strong> de las actas ambientales. <strong>No reemplaza</strong> Survey123, ArcGIS ni Outlook; los <strong>complementa</strong> como capa de trazabilidad y control.</p>
+<p><img alt="Diagrama 01-flowchart-lr" src="diagrams/01-flowchart-lr.png" /></p>
+<h3 id="12-principios-de-diseno">1.2 Principios de diseño</h3>
+<table>
+<thead>
+<tr>
+<th>Principio</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Complementar, no reemplazar</strong></td>
+<td>Survey123 sigue en campo; Outlook sigue recibiendo correos.</td>
+</tr>
+<tr>
+<td><strong>Bajo costo</strong></td>
+<td>Stack open source: Java 17, Spring Boot, PostgreSQL, Liquibase.</td>
+</tr>
+<tr>
+<td><strong>Evolución por fases</strong></td>
+<td>Registro manual → API → firma/nube automática → SIG.</td>
+</tr>
+<tr>
+<td><strong>API-first para integración</strong></td>
+<td>Power Automate y futuros sistemas se conectan vía REST JSON.</td>
+</tr>
+<tr>
+<td><strong>Auditoría</strong></td>
+<td>Cada cambio de estado queda en <code>historial_estados</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-arquitectura-logica-capas">1.3 Arquitectura lógica (capas)</h3>
+<p><img alt="Diagrama 02-flowchart-tb" src="diagrams/02-flowchart-tb.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Responsabilidad</th>
+<th>Ubicación en código</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Presentación</td>
+<td>Pantallas web para gestores y supervisores</td>
+<td><code>web/</code>, <code>templates/</code></td>
+</tr>
+<tr>
+<td>Integración</td>
+<td>API REST para Power Automate y sistemas externos</td>
+<td><code>api/</code>, <code>config/ApiKeyFilter</code></td>
+</tr>
+<tr>
+<td>Negocio</td>
+<td>Reglas de flujo, alertas, historial, documentos</td>
+<td><code>service/</code></td>
+</tr>
+<tr>
+<td>Datos</td>
+<td>Persistencia y migraciones de esquema</td>
+<td><code>repository/</code>, <code>model/</code>, <code>db/changelog/</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-arquitectura-fisica-despliegue">1.4 Arquitectura física — despliegue</h3>
+<h4 id="opcion-a-servidor-interno-municipal-produccion-propuesta">Opción A: Servidor interno municipal (producción propuesta)</h4>
+<p><img alt="Diagrama 03-flowchart-tb" src="diagrams/03-flowchart-tb.png" /></p>
+<h4 id="opcion-b-demo-en-nube-implementada-aws">Opción B: Demo en nube (implementada — AWS)</h4>
+<p><img alt="Diagrama 04-flowchart-tb" src="diagrams/04-flowchart-tb.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Tecnología</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aplicación</td>
+<td>Spring Boot 3.2.5 (JAR embebido)</td>
+<td>Perfiles: <code>demo</code>, <code>postgres</code>, <code>docker</code></td>
+</tr>
+<tr>
+<td>Base de datos</td>
+<td>PostgreSQL 16</td>
+<td>Esquema versionado con Liquibase</td>
+</tr>
+<tr>
+<td>Archivos</td>
+<td>Disco local <code>./uploads</code></td>
+<td>PDF/Word; ruta en BD (<code>ruta_documento</code>)</td>
+</tr>
+<tr>
+<td>Proxy / TLS</td>
+<td>Nginx + Certbot</td>
+<td>Guía: <code>docs/DESPLIEGUE-AWS.md</code></td>
+</tr>
+<tr>
+<td>Contenedores</td>
+<td>Docker Compose</td>
+<td><code>docker-compose.yml</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="15-stack-tecnologico">1.5 Stack tecnológico</h3>
+<table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tecnología</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lenguaje</td>
+<td>Java 17</td>
+</tr>
+<tr>
+<td>Framework</td>
+<td>Spring Boot 3.2.5</td>
+</tr>
+<tr>
+<td>Web</td>
+<td>Thymeleaf, Bootstrap 5, Chart.js</td>
+</tr>
+<tr>
+<td>API</td>
+<td>REST JSON, Jakarta Validation</td>
+</tr>
+<tr>
+<td>Persistencia</td>
+<td>Spring Data JPA, Hibernate</td>
+</tr>
+<tr>
+<td>BD</td>
+<td>PostgreSQL (prod) / H2 (demo)</td>
+</tr>
+<tr>
+<td>Migraciones</td>
+<td>Liquibase</td>
+</tr>
+<tr>
+<td>Build</td>
+<td>Maven</td>
+</tr>
+<tr>
+<td>Automatización externa</td>
+<td>Microsoft Power Automate</td>
+</tr>
+<tr>
+<td>SIG / campo</td>
+<td>Esri Survey123, ArcGIS</td>
+</tr>
+</tbody>
+</table>
+<h3 id="16-flujo-de-estados-del-documento">1.6 Flujo de estados del documento</h3>
+<p>Cada transición genera un registro en <code>historial_estados</code> (quién, cuándo, observación).</p>
+<p><img alt="Diagrama 05-statediagram-v2" src="diagrams/05-statediagram-v2.png" /></p>
+<h3 id="17-modelo-de-datos-resumen">1.7 Modelo de datos (resumen)</h3>
+<p><img alt="Diagrama 06-erdiagram" src="diagrams/06-erdiagram.png" /></p>
+<hr />
+<h2 id="2-roadmap">2. Roadmap</h2>
+<p>Roadmap propuesto en <strong>fases incrementales</strong>, validado con el departamento de Tecnología en cada etapa.</p>
+<h3 id="21-vista-resumida">2.1 Vista resumida</h3>
+<p><img alt="Diagrama 07-gantt" src="diagrams/07-gantt.png" /></p>
+<blockquote>
+<p>Las fechas son <strong>orientativas</strong> para la presentación; el calendario real lo define Tecnología según prioridades y recursos.</p>
+</blockquote>
+<h3 id="22-detalle-por-fase">2.2 Detalle por fase</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Fase</th>
+<th>Objetivo</th>
+<th>Entregables</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>1</strong></td>
+<td>Trazabilidad manual centralizada</td>
+<td>Web (dashboard, registro, consulta, detalle), BD, adjuntos, historial</td>
+<td><strong>Implementado</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>2</strong></td>
+<td>Automatizar registro desde Outlook</td>
+<td><code>POST /api/actas</code>, flujo Power Automate, documentación API</td>
+<td><strong>Parcial</strong> (API lista; flujo PA pendiente TI)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>3</strong></td>
+<td>Reducir trabajo manual (firma y nube)</td>
+<td><code>PATCH</code> estado, conector firma digital, subida SharePoint/JTP</td>
+<td><strong>Propuesto</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>4</strong></td>
+<td>Pasar a producción segura</td>
+<td>LDAP/AD, roles, HTTPS obligatorio, rotación de secretos</td>
+<td><strong>Propuesto</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>5</strong></td>
+<td>Integración SIG y alineación TI</td>
+<td>Import ArcGIS, enlace SIG, migración Oracle si aplica</td>
+<td><strong>Propuesto</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-fase-1-base-operativa-completada">2.3 Fase 1 — Base operativa <em>(completada)</em></h3>
+<table>
+<thead>
+<tr>
+<th>Ítem</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Registro de actas</td>
+<td>Formulario web con adjunto PDF/Word</td>
+</tr>
+<tr>
+<td>Consulta</td>
+<td>Filtros por empresa, contrato, consecutivo, inspector, estado, fechas</td>
+</tr>
+<tr>
+<td>Dashboard</td>
+<td>KPIs, gráficos (estado, tipo, gestor), alertas de pendientes</td>
+</tr>
+<tr>
+<td>Detalle</td>
+<td>Cambio de estado, historial, ver/descargar documento</td>
+</tr>
+<tr>
+<td>Persistencia</td>
+<td>PostgreSQL + Liquibase; empresa y contrato opcionales</td>
+</tr>
+<tr>
+<td>Demo</td>
+<td>Perfil H2 en memoria para demostraciones sin BD</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-fase-2-integracion-microsoft-365">2.4 Fase 2 — Integración Microsoft 365</h3>
+<table>
+<thead>
+<tr>
+<th>Ítem</th>
+<th>Descripción</th>
+<th>Dependencia TI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Automate</td>
+<td>Trigger: correo nuevo en carpeta Actas → <code>POST /api/actas</code></td>
+<td>Licencia M365, cuenta de servicio</td>
+</tr>
+<tr>
+<td>Mapeo de campos</td>
+<td>Extraer consecutivo, empresa, contrato del cuerpo del correo Survey123</td>
+<td>Plantilla de correo actual</td>
+</tr>
+<tr>
+<td>API key segura</td>
+<td><code>APP_API_KEY</code> en Azure Key Vault o gestor de secretos</td>
+<td>Política de secretos municipal</td>
+</tr>
+<tr>
+<td>Adjunto en API</td>
+<td>Extender API para recibir PDF desde el flujo (multipart)</td>
+<td>Desarrollo + prueba de flujo</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-fase-3-automatizacion-firma-y-nube">2.5 Fase 3 — Automatización firma y nube</h3>
+<table>
+<thead>
+<tr>
+<th>Paso manual actual</th>
+<th>Automatización propuesta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Descargar PDF del correo</td>
+<td>Power Automate guarda adjunto o API multipart</td>
+</tr>
+<tr>
+<td>Carpetas locales</td>
+<td>Documento en servidor; vista en navegador</td>
+</tr>
+<tr>
+<td>Firma digital externa</td>
+<td>Flujo envía a proveedor de firma → <code>PATCH</code> estado <code>FIRMADA</code></td>
+</tr>
+<tr>
+<td>Subida manual a nube</td>
+<td>Power Automate o servicio sube a SharePoint/JTP → <code>PATCH</code> estado <code>EN_NUBE</code></td>
+</tr>
+<tr>
+<td>Renombrar archivo "SUBIDA"</td>
+<td>Estado <code>EN_NUBE</code> en BD + historial</td>
+</tr>
+</tbody>
+</table>
+<h3 id="26-fase-4-seguridad-y-produccion">2.6 Fase 4 — Seguridad y producción</h3>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Demo actual</th>
+<th>Producción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Login web</td>
+<td>Sin autenticación</td>
+<td>LDAP / Active Directory</td>
+</tr>
+<tr>
+<td>Roles</td>
+<td>No implementados</td>
+<td>Gestor, supervisor, solo lectura</td>
+</tr>
+<tr>
+<td>API</td>
+<td><code>X-API-KEY</code></td>
+<td>OAuth2 / mTLS + Key Vault</td>
+</tr>
+<tr>
+<td>Transporte</td>
+<td>HTTP (local)</td>
+<td>HTTPS obligatorio</td>
+</tr>
+<tr>
+<td>Documentos</td>
+<td>Acceso por URL</td>
+<td>Permisos por rol</td>
+</tr>
+<tr>
+<td>Secretos</td>
+<td>Valores demo en config</td>
+<td>Variables de entorno / Key Vault</td>
+</tr>
+</tbody>
+</table>
+<h3 id="27-fase-5-sig-y-alineacion-con-infraestructura-municipal">2.7 Fase 5 — SIG y alineación con infraestructura municipal</h3>
+<table>
+<thead>
+<tr>
+<th>Ítem</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ArcGIS</td>
+<td>Importación CSV o Feature Service para cruzar casos de campo</td>
+</tr>
+<tr>
+<td>Dashboard SIG</td>
+<td>Enlace o API GET para consulta desde mapa institucional</td>
+</tr>
+<tr>
+<td>Oracle</td>
+<td>Migración JDBC si TI centraliza en Oracle (JPA facilita el cambio)</td>
+</tr>
+<tr>
+<td>OTRS / otros</td>
+<td>Campo <code>origen</code> ya contempla integraciones adicionales vía REST</td>
+</tr>
+</tbody>
+</table>
+<h3 id="28-reduccion-de-trabajo-manual-antes-y-despues">2.8 Reducción de trabajo manual — antes y después</h3>
+<p><img alt="Diagrama 08-flowchart-lr" src="diagrams/08-flowchart-lr.png" /></p>
+<hr />
+<h2 id="3-diagrama-de-integracion">3. Diagrama de integración</h2>
+<h3 id="31-integracion-end-to-end-actual-futuro">3.1 Integración end-to-end (actual + futuro)</h3>
+<p><img alt="Diagrama 09-flowchart-tb" src="diagrams/09-flowchart-tb.png" /></p>
+<h3 id="32-matriz-de-integracion-por-herramienta">3.2 Matriz de integración por herramienta</h3>
+<table>
+<thead>
+<tr>
+<th>Herramienta</th>
+<th>Rol actual</th>
+<th>Integración con el sistema</th>
+<th>Mecanismo</th>
+<th style="text-align: center;">Factibilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Survey123</strong></td>
+<td>Captura en campo, envía correo</td>
+<td>Origen <code>SURVEY123</code>; metadatos en registro</td>
+<td>Correo → Outlook → Power Automate → API</td>
+<td style="text-align: center;">Alta</td>
+</tr>
+<tr>
+<td><strong>ArcGIS</strong></td>
+<td>Almacén espacial de casos</td>
+<td>Cruce de referencia / importación</td>
+<td>CSV export, Feature Service, REST</td>
+<td style="text-align: center;">Media</td>
+</tr>
+<tr>
+<td><strong>Outlook</strong></td>
+<td>Recepción de actas</td>
+<td>Disparador de automatización</td>
+<td>Power Automate (When email arrives)</td>
+<td style="text-align: center;">Alta</td>
+</tr>
+<tr>
+<td><strong>Power Automate</strong></td>
+<td>Automatización M365</td>
+<td>Registro, firma, subida nube</td>
+<td>HTTP POST/PATCH + conectores M365</td>
+<td style="text-align: center;">Alta</td>
+</tr>
+<tr>
+<td><strong>SharePoint / JTP</strong></td>
+<td>Resguardo en nube</td>
+<td>Destino de PDF firmado</td>
+<td>Upload file + actualización de estado</td>
+<td style="text-align: center;">Media–alta</td>
+</tr>
+<tr>
+<td><strong>Firma digital</strong></td>
+<td>Validez legal del documento</td>
+<td>Orquestación del flujo</td>
+<td>API del proveedor municipal</td>
+<td style="text-align: center;">Media–alta</td>
+</tr>
+<tr>
+<td><strong>Oracle</strong></td>
+<td>BD corporativa (si aplica)</td>
+<td>Persistencia centralizada</td>
+<td>JDBC + dialecto Hibernate</td>
+<td style="text-align: center;">Media–alta</td>
+</tr>
+<tr>
+<td><strong>Active Directory</strong></td>
+<td>Identidad municipal</td>
+<td>Login y roles</td>
+<td>Spring Security + LDAP</td>
+<td style="text-align: center;">Alta</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-flujo-de-integracion-fase-2-registro-automatico">3.3 Flujo de integración — Fase 2 (registro automático)</h3>
+<p><img alt="Diagrama 10-sequencediagram" src="diagrams/10-sequencediagram.png" /></p>
+<h3 id="34-flujo-de-integracion-fase-3-firma-y-nube">3.4 Flujo de integración — Fase 3 (firma y nube)</h3>
+<p><img alt="Diagrama 11-sequencediagram" src="diagrams/11-sequencediagram.png" /></p>
+<h3 id="35-endpoints-api-estado-de-implementacion">3.5 Endpoints API — estado de implementación</h3>
+<table>
+<thead>
+<tr>
+<th>Método</th>
+<th>Ruta</th>
+<th>Uso</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td><code>/api/actas</code></td>
+<td>Registrar acta desde Outlook / Power Automate</td>
+<td><strong>Implementado</strong></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/actas</code></td>
+<td>Consulta con filtros</td>
+<td>Documentado</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/actas/{consecutivo}</code></td>
+<td>Detalle por consecutivo</td>
+<td>Documentado</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/api/actas/{consecutivo}/estado</code></td>
+<td>Actualizar estado (firma, nube)</td>
+<td>Documentado</td>
+</tr>
+</tbody>
+</table>
+<p>Documentación detallada: <a href="API-POWER-AUTOMATE.md"><code>docs/API-POWER-AUTOMATE.md</code></a></p>
+<h3 id="36-preguntas-para-cerrar-integracion-con-ti">3.6 Preguntas para cerrar integración con TI</h3>
+<p>En la reunión con Tecnología, conviene validar:</p>
+<ol>
+<li>¿Qué proveedor de <strong>firma digital</strong> utiliza la municipalidad?</li>
+<li>¿La “nube” es <strong>SharePoint</strong>, <strong>OneDrive</strong>, <strong>JTP</strong> u otro repositorio?</li>
+<li>¿Existe licencia de <strong>Power Automate</strong> para flujos HTTP y almacenamiento?</li>
+<li>¿La BD de producción será <strong>PostgreSQL</strong> dedicado u <strong>Oracle</strong> corporativo?</li>
+<li>¿Hay <strong>Active Directory</strong> disponible para autenticación web?</li>
+</ol>
+<hr />
+<h2 id="referencias">Referencias</h2>
+<table>
+<thead>
+<tr>
+<th>Documento</th>
+<th>Contenido</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../README.md"><code>README.md</code></a></td>
+<td>Inicio rápido y visión general</td>
+</tr>
+<tr>
+<td><a href="PROPUESTA-ETAPA2-DISENO.md"><code>docs/PROPUESTA-ETAPA2-DISENO.md</code></a></td>
+<td>Propuesta completa Etapa 2</td>
+</tr>
+<tr>
+<td><a href="API-POWER-AUTOMATE.md"><code>docs/API-POWER-AUTOMATE.md</code></a></td>
+<td>Contrato API y flujos Power Automate</td>
+</tr>
+<tr>
+<td><a href="DESPLIEGUE-AWS.md"><code>docs/DESPLIEGUE-AWS.md</code></a></td>
+<td>Despliegue demo en AWS</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Municipalidad de Heredia — Gestión Ambiental · Prototipo 0.1.0-DEMO</em></p>
+</body>
+</html>
